@@ -1,0 +1,21 @@
+.brand-wrap .logo, .navbar-brand .logo {
+  margin-right: 7px;
+  max-height: 42px;
+  display: inline-block;
+}
+
+.zentrox-logo {
+    height: 80px;
+    width: 14rem;
+    object-fit: cover;
+    margin-left: 0px;
+}
+
+@media all and (max-width: 768px) {
+
+.section-header .logo {
+    max-height: 40px;
+    width: 17rem;
+}
+
+}
