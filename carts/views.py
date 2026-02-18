@@ -8,7 +8,6 @@ from django.http import HttpResponse
 
 # Create your views here.
 
-from django.http import HttpResponse
 
 def _cart_id(request):
     cart = request.session.session_key
