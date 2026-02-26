@@ -36,7 +36,7 @@
                 <div class="card">
                     <h5 class="card-header">Payment Method</h5>
                     <div class="card-body">
-                        <p class="card-text">Paypal</p>
+                        <p class="card-text">Online Payment</p>
                     </div>
                 </div>
 
@@ -113,8 +113,13 @@
                             <img src="{% static './images/misc/payments.png' %}" height="26">
                         </p>
 
-                        <div id="paypal-button-container">
-                            <!-- PayPal Button Will Load -->
+                        <!-- <div id="paypal-button-container">
+                            PayPal Button Will Load
+                        </div> -->
+                        <div class="text-center">
+                            <button id="fake-payment-btn" class="btn btn-primary btn-block">
+                                Pay Now
+                            </button>
                         </div>
 
 
@@ -131,15 +136,14 @@
 </section>
 <!-- ========================= SECTION CONTENT END// ========================= -->
 
-<Script>
-    
+<script>
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -149,66 +153,39 @@
         return cookieValue;
     }
 
-    var amount = "{{ grand_total }}"
     var url = "{% url 'payments' %}"
-	var csrftoken = getCookie('csrftoken');
-	var orderID = "{{order.order_number}}"
-	var payment_method = 'PayPal'
+    var csrftoken = getCookie('csrftoken');
+    var orderID = "{{order.order_number}}"
     var redirect_url = "{% url 'order_complete' %}"
-    
-    // Render the paypal button into #paypal-button-container
-    paypal.Buttons({
 
-        style: {
-            color: 'blue',
-            shape: 'rect',
-            label: 'pay',
-            height: 40
-        },
+    document.getElementById("fake-payment-btn").addEventListener("click", function () {
 
-        // Set up the trasaction
-        createOrdr: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: amount,
-                    }
-                }]
-            })
-        },
+        // Generate fake transaction ID
+        var fakeTransactionID = "FAKE-" + Date.now();
 
-        // Finalize the trasaction
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                // Show a success message to the buyer
-                console.log(details)
-                sendData()
-                // alert('Transaction completed by ' + details.payer.name.given_name + '!')
-                function sendData(){
-					fetch(url, {
-						method : "POST",
-						headers: {
-							"Content-type": "application/json",
-							"X-CSRFToken": csrftoken,
-						},
-						body: JSON.stringify({
-							orderID: orderID,
-							transID: details.id,
-							payment_method: payment_method,
-							status: details.status,
-						}),
-					})
-				  .then((response) => response.json())
-				  .then((data) => {
-						window.location.href = redirect_url + '?order_number='+data.order_number+'&payment_id='+data.transID;
-					});
-				}
-            })
-        }
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify({
+                orderID: orderID,
+                transID: fakeTransactionID,
+                payment_method: "FakePayment",
+                status: "COMPLETED",
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                window.location.href = redirect_url +
+                    '?order_number=' + data.order_number +
+                    '&payment_id=' + data.transID;
+            });
 
+    });
 
-    }).render('#paypal-button-container')
-</Script>
+</script>
 
 
 {% endblock %}
